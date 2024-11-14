@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+</head>
+<body>
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Logout</button>
+</form>
+<h1>List of Users</h1>
+<table>
+    <thead>
+    <tr>
+        <th scope="col">Username</th>
+        <th scope="col">Age</th>
+        <th scope="col">Roles</th>
+        <th scope="col">Password</th>
+        <th scope="col">Account Non Expired</th>
+        <th scope="col">Account Non Locked</th>
+        <th scope="col">Credentials Non Expired</th>
+        <th scope="col">Enabled</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.username}">Username</td>
+        <td th:text="${user.age}">Age</td>
+        <td th:text="${user.roles}">Roles</td>
+        <td th:text="${user.password}">Password</td>
+        <td th:text="${user.accountNonExpired}">Account Non Expired</td>
+        <td th:text="${user.accountNonLocked}">Account Non Locked</td>
+        <td th:text="${user.credentialsNonExpired}">Credentials Non Expired</td>
+        <td th:text="${user.enabled}">Enabled</td>
+    </tr>
+    </tbody>
+</table>
+
+<br>
+
+<a href="/admin/addUser">Add user</a>
+<br>
+<a href="/admin/deleteUser">Delete user</a>
+<br>
+<a href="/admin/updateUser">Update user</a>
+
+
+</body>
+</html>

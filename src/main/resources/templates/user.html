@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Security Example</title>
+</head>
+<body>
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Logout</button>
+</form>
+<h1>User Details</h1>
+<table>
+    <thead>
+    <tr>
+        <th scope="col">Field</th>
+        <th scope="col">Details</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Username</td>
+        <td th:text="${user.username}">Username</td>
+    </tr>
+    <tr>
+        <td>Age</td>
+        <td th:text="${user.age}">Age</td>
+    </tr>
+    <tr>
+        <td>Roles</td>
+        <td th:text="${user.roles}">Roles</td>
+    </tr>
+    <tr>
+        <td>Password</td>
+        <td th:text="${user.password}">Password</td>
+    </tr>
+    <tr>
+        <td>Account Non Expired</td>
+        <td th:text="${user.accountNonExpired}">Account Non Expired</td>
+    </tr>
+    <tr>
+        <td>Account Non Locked</td>
+        <td th:text="${user.accountNonLocked}">Account Non Locked</td>
+    </tr>
+    <tr>
+        <td>Credentials Non Expired</td>
+        <td th:text="${user.credentialsNonExpired}">Credentials Non Expired</td>
+    </tr>
+    <tr>
+        <td>Enabled</td>
+        <td th:text="${user.enabled}">Enabled</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
