@@ -5,11 +5,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Set;
 
 @Entity
-@Table(name = "users", indexes = {
-        @Index(name = "idx_user_username", columnList = "username")
-})
+@Table(name = "users", indexes = {@Index(name = "idx_user_username", columnList = "username")})
 public class User implements UserDetails {
     @Id
     @Column(unique = true)
@@ -18,25 +17,35 @@ public class User implements UserDetails {
     private String password;
 
     private Integer age;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(joinColumns = @JoinColumn(name = "user_username"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles;
 
-    public Collection<Role> getRoles() {
-        return roles;
-    }
+    private boolean accountNonExpired = true;
 
-    public void setRoles(Collection<Role> roles) {
+    private boolean accountNonLocked = true;
+
+    private boolean credentialsNonExpired = true;
+
+    private boolean enabled = true;
+
+    public User(String username, String password, Integer age, Set<Role> roles) {
+        this.username = username;
+        this.password = password;
+        this.age = age;
         this.roles = roles;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            joinColumns = @JoinColumn(name = "user_username"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Collection<Role> roles;
-    private boolean accountNonExpired = true;
-    private boolean accountNonLocked = true;
-    private boolean credentialsNonExpired = true;
-    private boolean enabled = true;
+    public User() {
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
 
     public void setAccountNonExpired(boolean accountNonExpired) {
         this.accountNonExpired = accountNonExpired;
@@ -45,7 +54,6 @@ public class User implements UserDetails {
     public void setAccountNonLocked(boolean accountNonLocked) {
         this.accountNonLocked = accountNonLocked;
     }
-
 
     public void setCredentialsNonExpired(boolean credentialsNonExpired) {
         this.credentialsNonExpired = credentialsNonExpired;

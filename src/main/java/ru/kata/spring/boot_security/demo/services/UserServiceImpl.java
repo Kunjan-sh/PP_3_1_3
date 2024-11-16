@@ -14,9 +14,7 @@ import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
 import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,12 +34,13 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         return userRepository.findByUsername(username);
     }
 
-    public Collection<Role> getRolesByIds(List<Long> roleIds) {
-        Collection<Role> roles = new ArrayList<>();
+    public Set<Role> getRolesByIds(List<Long> roleIds) {
+        Set<Role> roles = new HashSet<>();
         if (roleIds != null && !roleIds.isEmpty()) {
             roles = roleIds.stream()
-                    .map(roleId -> roleRepository.findById(roleId).orElseThrow(() -> new IllegalArgumentException("Role not found")))
-                    .collect(Collectors.toList());
+                    .map(roleId -> roleRepository.findById(roleId)
+                            .orElseThrow(() -> new IllegalArgumentException("Role not found")))
+                    .collect(Collectors.toSet());
         }
         return roles;
     }
@@ -56,7 +55,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
     }
 
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Set<Role> roles) {
         return roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toList());
     }
 
