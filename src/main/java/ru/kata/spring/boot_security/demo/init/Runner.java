@@ -1,4 +1,4 @@
-package ru.kata.spring.boot_security.demo;
+package ru.kata.spring.boot_security.demo.init;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -26,9 +26,9 @@ public class Runner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Role adminRole = new Role("ADMIN", 1L);
+        Role adminRole = new Role("ADMIN");
         roleRepository.save(adminRole);
-        Role userRole = new Role("USER", 2L);
+        Role userRole = new Role("USER");
         roleRepository.save(userRole);
 
         User admin = new User("admin", passwordEncoder.encode("admin"), 0, Set.of(adminRole));

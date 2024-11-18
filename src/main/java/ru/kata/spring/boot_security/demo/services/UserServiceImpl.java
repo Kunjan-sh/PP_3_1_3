@@ -13,7 +13,7 @@ import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
 import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,15 +30,19 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         this.roleRepository = roleRepository;
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
-    public Set<Role> getRolesByIds(List<Long> roleIds) {
+    @Override
+    @Transactional(readOnly = true)
+    public Set<Role> getRolesByNames(List<String> roleNames) {
         Set<Role> roles = new HashSet<>();
-        if (roleIds != null && !roleIds.isEmpty()) {
-            roles = roleIds.stream()
-                    .map(roleId -> roleRepository.findById(roleId)
+        if (roleNames != null && !roleNames.isEmpty()) {
+            roles = roleNames.stream()
+                    .map(roleName -> roleRepository.findByName(roleName)
                             .orElseThrow(() -> new IllegalArgumentException("Role not found")))
                     .collect(Collectors.toSet());
         }
@@ -46,7 +50,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = findByUsername(username);
         if (user == null) {
@@ -61,30 +65,26 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
     @Override
     @Transactional
-    public void addUser(String username, String password, Integer age, List<Long> roleIds) {
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setAge(age);
-        user.setRoles(getRolesByIds(roleIds));
+    public void addUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 
     @Override
     @Transactional
-    public void updateUser(String username, String password, Integer age, List<Long> roleIds) {
-        User user = userRepository.findByUsername(username);
-        if (user != null) {
-            if (password != null && !password.isEmpty()) {
-                user.setPassword(passwordEncoder.encode(password));
+    public void updateUser(User updatedUser) {
+        User existingUser = userRepository.findByUsername(updatedUser.getUsername());
+        if (existingUser != null) {
+            if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
+                existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
             }
-            if (age != null) {
-                user.setAge(age);
+            if (updatedUser.getAge() != null) {
+                existingUser.setAge(updatedUser.getAge());
             }
-            if (roleIds != null && !roleIds.isEmpty()) {
-                user.setRoles(getRolesByIds(roleIds));
+            if (updatedUser.getRoles() != null && !updatedUser.getRoles().isEmpty()) {
+                existingUser.setRoles(updatedUser.getRoles());
             }
-            userRepository.save(user);
+            userRepository.save(existingUser);
         }
     }
 
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<User> getUsers() {
         return userRepository.findAll();
     }
