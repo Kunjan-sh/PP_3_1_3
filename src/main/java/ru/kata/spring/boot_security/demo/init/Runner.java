@@ -31,8 +31,8 @@ public class Runner implements CommandLineRunner {
         Role userRole = new Role("USER");
         roleRepository.save(userRole);
 
-        User admin = new User("admin", passwordEncoder.encode("admin"), 0, Set.of(adminRole));
-        User user = new User("user", passwordEncoder.encode("user"), 0, Set.of(userRole));
+        User admin = new User("admin", "admin", "admin@mail.ru", passwordEncoder.encode("admin"), 0, Set.of(adminRole));
+        User user = new User("user", "user", "user@mail.ru", passwordEncoder.encode("user"), 0, Set.of(userRole));
         userRepository.save(admin);
         userRepository.save(user);
     }

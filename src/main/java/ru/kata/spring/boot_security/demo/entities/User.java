@@ -7,18 +7,27 @@ import javax.persistence.*;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "users", indexes = {@Index(name = "idx_user_username", columnList = "username")})
+@Table(name = "users", indexes = {@Index(name = "idx_user_id", columnList = "id")})
 public class User implements UserDetails {
     @Id
-    private String username;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String firstName;
+
+    private String lastName;
+
+    @Column(unique = true)
+    private String email;
 
     private String password;
 
     private Integer age;
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(joinColumns = @JoinColumn(name = "user_username"), inverseJoinColumns = @JoinColumn(name = "role_name"))
+    @JoinTable(joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_name"))
     private Set<Role> roles;
 
     private boolean accountNonExpired = true;
@@ -29,8 +38,10 @@ public class User implements UserDetails {
 
     private boolean enabled = true;
 
-    public User(String username, String password, Integer age, Set<Role> roles) {
-        this.username = username;
+    public User(String firstName, String lastName, String email, String password, Integer age, Set<Role> roles) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
         this.password = password;
         this.age = age;
         this.roles = roles;
@@ -45,6 +56,12 @@ public class User implements UserDetails {
 
     public Set<Role> getRoles() {
         return roles;
+    }
+
+    public String getRoleNames(Set<Role> roles) {
+        return roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.joining(" "));
     }
 
     public void setAccountNonExpired(boolean accountNonExpired) {
@@ -63,8 +80,36 @@ public class User implements UserDetails {
         this.enabled = enabled;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public Integer getAge() {
@@ -91,8 +136,9 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
+
 
     @Override
     public boolean isAccountNonExpired() {
@@ -119,12 +165,12 @@ public class User implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(username, user.username);
+        return Objects.equals(id, user.id) && Objects.equals(email, user.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(username);
+        return Objects.hash(id, email);
     }
 }
 

@@ -8,53 +8,59 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.entities.Role;
 import ru.kata.spring.boot_security.demo.entities.User;
-import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
 import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 
-import org.springframework.transaction.annotation.Transactional;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserDetailsService, UserService {
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.roleRepository = roleRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public User findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Set<Role> getRolesByNames(List<String> roleNames) {
-        Set<Role> roles = new HashSet<>();
-        if (roleNames != null && !roleNames.isEmpty()) {
-            roles = roleNames.stream()
-                    .map(roleName -> roleRepository.findByName(roleName)
-                            .orElseThrow(() -> new IllegalArgumentException("Role not found")))
-                    .collect(Collectors.toSet());
-        }
-        return roles;
+    public User findById(Long id) {
+        return userRepository.findById(id).orElse(null);
     }
+
+//    @Override
+//    @Transactional(readOnly = true)
+//    public Set<Role> getRolesByNames(List<String> roleNames) {
+//        Set<Role> roles = new HashSet<>();
+//        if (roleNames != null && !roleNames.isEmpty()) {
+//            roles = roleNames.stream()
+//                    .map(roleName -> roleRepository.findByName(roleName)
+//                            .orElseThrow(() -> new IllegalArgumentException("Role not found")))
+//                    .collect(Collectors.toSet());
+//        }
+//        return roles;
+//    }
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = findByUsername(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = findByEmail(email);
         if (user == null) {
-            throw new UsernameNotFoundException(String.format("User '%s' not found", username));
+            throw new UsernameNotFoundException(String.format("User '%s' not found", email));
         }
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
     }
@@ -73,28 +79,25 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     @Override
     @Transactional
     public void updateUser(User updatedUser) {
-        User existingUser = userRepository.findByUsername(updatedUser.getUsername());
-        if (existingUser != null) {
+        Optional<User> existingUser = userRepository.findById(updatedUser.getId());
+        if (existingUser.isPresent()) {
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-                existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+                existingUser.get().setPassword(passwordEncoder.encode(updatedUser.getPassword()));
             }
             if (updatedUser.getAge() != null) {
-                existingUser.setAge(updatedUser.getAge());
+                existingUser.get().setAge(updatedUser.getAge());
             }
             if (updatedUser.getRoles() != null && !updatedUser.getRoles().isEmpty()) {
-                existingUser.setRoles(updatedUser.getRoles());
+                existingUser.get().setRoles(updatedUser.getRoles());
             }
-            userRepository.save(existingUser);
+            userRepository.save(existingUser.get());
         }
     }
 
     @Override
     @Transactional
-    public void deleteUser(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user != null) {
-            userRepository.delete(user);
-        }
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 
     @Override
