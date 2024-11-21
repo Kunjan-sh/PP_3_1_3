@@ -4,7 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class GeneralController {
+public class LoginAndOtherRolesController {
     @GetMapping("/")
     public String showLoginPage() {
         return "redirect:/login";
