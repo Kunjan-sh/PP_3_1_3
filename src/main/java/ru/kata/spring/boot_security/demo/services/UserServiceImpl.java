@@ -42,19 +42,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-//    @Override
-//    @Transactional(readOnly = true)
-//    public Set<Role> getRolesByNames(List<String> roleNames) {
-//        Set<Role> roles = new HashSet<>();
-//        if (roleNames != null && !roleNames.isEmpty()) {
-//            roles = roleNames.stream()
-//                    .map(roleName -> roleRepository.findByName(roleName)
-//                            .orElseThrow(() -> new IllegalArgumentException("Role not found")))
-//                    .collect(Collectors.toSet());
-//        }
-//        return roles;
-//    }
-
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

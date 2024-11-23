@@ -16,9 +16,7 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String firstName;
-
-    private String lastName;
+    private String name;
 
     @Column(unique = true)
     private String email;
@@ -38,9 +36,8 @@ public class User implements UserDetails {
 
     private boolean enabled = true;
 
-    public User(String firstName, String lastName, String email, String password, Integer age, Set<Role> roles) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public User(String firstName, String email, String password, Integer age, Set<Role> roles) {
+        this.name = firstName;
         this.email = email;
         this.password = password;
         this.age = age;
@@ -80,12 +77,8 @@ public class User implements UserDetails {
         this.enabled = enabled;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setEmail(String email) {
@@ -100,12 +93,8 @@ public class User implements UserDetails {
         this.id = id;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
+    public String getName() {
+        return name;
     }
 
     public String getEmail() {

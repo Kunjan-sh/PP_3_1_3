@@ -3,52 +3,41 @@ package ru.kata.spring.boot_security.demo.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import ru.kata.spring.boot_security.demo.entities.Role;
 import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-    private final UserService userService;
     private final RoleService roleService;
+    private final UserService userService;
 
     @Autowired
-    public AdminController(UserService userService, RoleService roleService) {
-        this.userService = userService;
+    public AdminController(RoleService roleService, UserService userService) {
         this.roleService = roleService;
+        this.userService = userService;
     }
 
     @GetMapping
-    public String adminPage(Model model, Principal principal) {
+    public String getUsersList(Principal principal, Model model) {
         List<User> users = userService.getUsers();
+        User user = userService.findByEmail(principal.getName());
+        List<String> roles = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
+
+        model.addAttribute("authUser", user);
+        model.addAttribute("userRoles", roles);
+        model.addAttribute("listRoles", roleService.findAll());
         model.addAttribute("users", users);
-        model.addAttribute("newUser", new User());
-        model.addAttribute("roles", roleService.findAll());
-        model.addAttribute("user", userService.findByEmail(principal.getName()));
         return "admin";
-    }
-
-    @PostMapping("/new")
-    public String createUser(@ModelAttribute("newUser") User newUser) {
-        userService.addUser(newUser);
-        return "redirect:/admin";
-    }
-
-    @PostMapping("/edit/{id}")
-    public String editUser(@PathVariable Long id, @ModelAttribute User user) {
-        user.setId(id);
-        userService.updateUser(user);
-        return "redirect:/admin";
-    }
-
-    @PostMapping("/delete/{id}")
-    public String deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return "redirect:/admin";
     }
 }
